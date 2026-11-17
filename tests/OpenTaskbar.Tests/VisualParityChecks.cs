@@ -25,6 +25,7 @@ internal static class VisualParityChecks
             }
 
             UiText.Current.SetLanguage(AppLanguage.English);
+            var dockBaselineMismatches = new List<string>();
 
             // Baseline SHA-256 pixel hashes captured directly from the unmodified reference build.
             var expected = new Dictionary<string, string>(StringComparer.Ordinal)
@@ -64,7 +65,9 @@ internal static class VisualParityChecks
                 dockButtons.Children.Add(new Button { Style = (Style)app.FindResource("DockButton"), DataContext = runApp, Content = new Border { Width = 32, Height = 32, Background = Brushes.MediumSeaGreen } });
                 dockButtons.Children.Add(new Button { Style = (Style)app.FindResource("DockButton"), DataContext = pinApp, Content = new Border { Width = 32, Height = 32, Background = Brushes.Coral } });
                 var dockHash = CaptureHash(app, dockButtons, 260, 56, out var dockPixels);
-                Check(dockHash == expected[$"DockButtons_{theme}"], $"DockButtons_{theme} pixel buffer must match baseline exactly.");
+                var dockBaseline = expected[$"DockButtons_{theme}"];
+                if (dockHash != dockBaseline)
+                    dockBaselineMismatches.Add($"DockButtons_{theme}: expected={dockBaseline} actual={dockHash}");
                 Check(dockPixels.Any(b => b != 0), $"DockButtons_{theme} rendered pixels must be non-empty.");
 
                 // 2. RingMeters across 0%, 50%, 75%, 90%, 100% + cached Pen re-render parity
@@ -175,6 +178,7 @@ internal static class VisualParityChecks
                 Check(cHash1 == cHash2 && cPixels.Any(b => b != 0), $"ClockWidget_{theme} must render deterministically.");
             }
 
+            Check(dockBaselineMismatches.Count == 0, string.Join("; ", dockBaselineMismatches));
             ThemeManager.Apply(AppTheme.Dark);
         }
         finally
