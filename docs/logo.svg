@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#161F34"/>
+      <stop offset="1" stop-color="#0A0F1D"/>
+    </linearGradient>
+    <linearGradient id="aurora" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#5EEAD4"/>
+      <stop offset="0.55" stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#818CF8"/>
+    </linearGradient>
+    <linearGradient id="auroraSoft" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#5EEAD4" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#818CF8" stop-opacity="0.4"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.14"/>
+      <stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.03"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="bevel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.4"/>
+      <stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.14"/>
+    </linearGradient>
+    <clipPath id="tileClip">
+      <rect x="32" y="32" width="448" height="448" rx="118"/>
+    </clipPath>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="26"/>
+    </filter>
+    <filter id="halo" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+  </defs>
+
+  <!-- midnight glass squircle -->
+  <rect x="32" y="32" width="448" height="448" rx="118" fill="url(#tile)"/>
+
+  <g clip-path="url(#tileClip)">
+    <!-- ambient aurora wash -->
+    <path d="M -20 480 C 120 330, 190 470, 300 360 S 460 180, 540 140 L 540 512 L -20 512 Z"
+          fill="url(#auroraSoft)" opacity="0.35" filter="url(#glow)"/>
+
+    <!-- ribbon glow -->
+    <path d="M 20 404 C 140 254, 190 390, 300 290 S 445 128, 510 118"
+          fill="none" stroke="url(#aurora)" stroke-width="84" stroke-linecap="round"
+          opacity="0.9" filter="url(#glow)"/>
+
+    <!-- main aurora ribbon -->
+    <path d="M 20 404 C 140 254, 190 390, 300 290 S 445 128, 510 118"
+          fill="none" stroke="url(#aurora)" stroke-width="50" stroke-linecap="round"/>
+
+    <!-- inner ribbon highlight -->
+    <path d="M 20 404 C 140 254, 190 390, 300 290 S 445 128, 510 118"
+          fill="none" stroke="#EAFBFF" stroke-width="14" stroke-linecap="round" opacity="0.35"/>
+
+    <!-- second faint ribbon -->
+    <path d="M 44 464 C 170 344, 258 444, 358 344 S 484 198, 524 188"
+          fill="none" stroke="url(#auroraSoft)" stroke-width="30" stroke-linecap="round" opacity="0.7"/>
+
+    <!-- glass sheen -->
+    <rect x="32" y="32" width="448" height="448" fill="url(#sheen)"/>
+
+    <!-- polaris sparkles -->
+    <path d="M 404 88 C 408 105, 417 114, 434 118 C 417 122, 408 131, 404 148 C 400 131, 391 122, 374 118 C 391 114, 400 105, 404 88 Z"
+          fill="#E8F4FF" opacity="0.55" filter="url(#halo)"/>
+    <path d="M 404 92 C 407 107, 415 115, 430 118 C 415 121, 407 129, 404 144 C 401 129, 393 121, 378 118 C 393 115, 401 107, 404 92 Z"
+          fill="#F2FAFF"/>
+    <path d="M 118 96 C 120 105, 125 110, 134 112 C 125 114, 120 119, 118 128 C 116 119, 111 114, 102 112 C 111 110, 116 105, 118 96 Z"
+          fill="#E8F4FF" opacity="0.6"/>
+  </g>
+
+  <!-- optical bevel -->
+  <rect x="32" y="32" width="448" height="448" rx="118" fill="none" stroke="url(#bevel)" stroke-width="1.5"/>
+</svg>

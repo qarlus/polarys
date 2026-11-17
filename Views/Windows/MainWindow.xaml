@@ -180,7 +180,7 @@
                                           Data="M0,0 H10 V10 H0 Z M12,0 H22 V10 H12 Z M0,12 H10 V22 H0 Z M12,12 H22 V22 H12 Z" />
                                 </Grid>
                             </Button>
-                            <Border x:Name="StartDivider" Width="1" Height="22" Background="{DynamicResource StrokeSubtle}" Margin="3,0,4,0" IsHitTestVisible="False" />
+                            <Border x:Name="StartDivider" Width="1" Height="22" Background="{DynamicResource StrokeSubtle}" Margin="4,0" IsHitTestVisible="False" />
                         </StackPanel>
                         <views:DockScrollViewer x:Name="DockScrollViewer" Grid.Column="1" Style="{StaticResource DockScrollViewerStyle}"
                                               HoverHeadroom="{StaticResource DockHeadroom}" ContentInset="{StaticResource DockScrollContentInset}"
@@ -240,7 +240,7 @@
                                             <TranslateTransform Y="0" />
                                         </TransformGroup>
                                     </Grid.RenderTransform>
-                                    <Image x:Name="RecycleBinIcon" Margin="2.5" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" />
+                                    <Image x:Name="RecycleBinIcon" Margin="1" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" />
                                 </Grid>
                             </Button>
                             <Border x:Name="WidgetDivider" Width="1" Height="22" Background="{DynamicResource StrokeSubtle}" Margin="6,0" Visibility="Collapsed" IsHitTestVisible="False" />

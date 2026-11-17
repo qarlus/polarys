@@ -24,7 +24,7 @@
 
 ## 0.2.5 - 2026-11-17
 
-- Added custom, theme-integrated `ComboBox` and `ComboBoxItem` styles matching OpenTaskbar's acrylic glass design tokens.
+- Added custom, theme-integrated `ComboBox` and `ComboBoxItem` styles matching Polarys's acrylic glass design tokens.
 - Expanded Weather flyout with humidity, wind speed, today's high/low temperatures, and dynamic condition-based background gradients.
 - Added a 3-day weather forecast with day titles, condition icons, localized status descriptions, and high/low temperatures.
 - Widened Settings window default bounds (`980x680`) and content metrics (`SettingsReadingWidth` to 960 DIP, `SettingsPageInset` to 32,20,24,20) for optimal 3-column widget card wrapping.

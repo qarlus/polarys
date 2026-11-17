@@ -1,6 +1,6 @@
 # Theme Packs
 
-A theme pack restyles OpenTaskbar with an **icon pack** and a **widget pack**. OpenTaskbar installs its bundled theme library into your user theme folder on first launch. You can also add or edit your own theme folders there.
+A theme pack restyles Polarys with an **icon pack** and a **widget pack**. Polarys installs its bundled theme library into your user theme folder on first launch. You can also add or edit your own theme folders there.
 
 ## Where themes live
 
@@ -51,7 +51,9 @@ Comments and trailing commas are allowed.
 
 ### Icon keys
 
-For each app, the first key that matches wins:
+Applications always keep their real icon. The `icons` map supplies artwork only for the special items
+and for apps whose icon could not be resolved, so a pack can never replace an app's own logo with a
+generic category image. For each lookup, the first key that matches wins:
 
 | Key | Example | Matches |
 | :--- | :--- | :--- |
@@ -64,13 +66,13 @@ For each app, the first key that matches wins:
 
 Keys are not case-sensitive. Values are paths relative to the `icons` folder; a path that leads outside it is ignored.
 
-An image named after the executable, such as `firefox.png` in the `icons` folder or in `icons\icons\`, is used without a mapping.
+An image named after the executable, such as `firefox.png` in the `icons` folder or in `icons\icons\`, is found without a mapping.
 
 Supported image formats: PNG, ICO, JPG and BMP. A square PNG of 128 to 256 pixels works best.
 
 ### Fallback plate
 
-Apps the pack has no image for keep their own icon. With a fallback `shape`, that icon is drawn on a plate so the whole dock matches the theme:
+Every app keeps its own icon. With a fallback `shape`, that icon is drawn on a plate so the whole dock matches the theme:
 
 | Field | Values | Default |
 | :--- | :--- | :--- |
@@ -109,7 +111,7 @@ A value's type follows the token it replaces:
 | Size | A number | `WidgetHeight`, `TextSizeWidgetValue` |
 | Font | A font family name | `InterfaceFont` |
 
-Brushes and colors change at once. Sizes, radii and fonts are read when a view is first built, so they take effect after OpenTaskbar restarts. Unknown tokens and values of the wrong type are skipped and written to `%LOCALAPPDATA%\OpenTaskbar\log.txt`.
+Brushes and colors change at once. Sizes, radii and fonts are read when a view is first built, so they take effect after Polarys restarts. Unknown tokens and values of the wrong type are skipped and written to `%LOCALAPPDATA%\OpenTaskbar\log.txt`.
 
 The dock and menu glass (`DockMaterial`, `MenuMaterial`) keep the **Surface opacity** setting: their colors come from the theme and their opacity from Settings.
 

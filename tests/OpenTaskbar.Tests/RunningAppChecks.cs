@@ -42,8 +42,11 @@ internal static class RunningAppChecks
         Check(ReferenceEquals(cache.Get(Packaged, 2), settings), "A packaged executable without resources must use its AppsFolder icon.");
         Check(!cache.HasPendingLookups, "A resolved identity icon must not schedule retries.");
 
+        var resourceBeforeHosts = resourceCalls;
         Check(ReferenceEquals(cache.Get(FrameHost, 3), settings) && ReferenceEquals(cache.Get(FrameHost, 4), calculator),
             "Hosted Store apps must not share an icon through their common host executable.");
+        Check(resourceCalls == resourceBeforeHosts,
+            "A shared host executable must never be asked for its own icon resource.");
         var shellCallsBefore = shellCalls;
         Check(ReferenceEquals(cache.Get(FrameHost, 3), settings) && shellCalls == shellCallsBefore,
             "A resolved identity icon must be reused without another Shell lookup.");
@@ -81,8 +84,8 @@ internal static class RunningAppChecks
             "Tracked windows must keep their cached icons.");
         cache.Get(Desktop, 1);
         cache.Get(FrameHost, 6);
-        Check(resourceCalls == resourceBefore + 2 && identityCalls == identityBefore + 1,
-            "Entries of closed windows and executables must be dropped.");
+        Check(resourceCalls == resourceBefore + 1 && identityCalls == identityBefore + 1,
+            "Entries of closed windows and executables must be dropped; hosts still skip resource lookups.");
         Check(cache.HasPendingLookups, "A reopened window must be looked up again.");
 
         return checks;

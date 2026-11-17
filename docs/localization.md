@@ -1,6 +1,6 @@
 # Localization
 
-OpenTaskbar stores the selected UI language as a BCP 47 culture tag, such as `tr-TR`, `en-US`, or `ja-JP`. The language catalog reads embedded JSON files from `Services/Localization/Languages`. The file name is the culture tag and each JSON property is a localization key.
+Polarys stores the selected UI language as a BCP 47 culture tag, such as `tr-TR`, `en-US`, or `ja-JP`. The language catalog reads embedded JSON files from `Services/Localization/Languages`. The file name is the culture tag and each JSON property is a localization key.
 
 On first launch, the app selects a translation matching the Windows UI language. Regional variants keep their culture-specific date and number formatting while using the matching language translation. If the Windows UI language is not available, the app starts in English. A missing translation in another language uses the English entry; a missing English key raises an explicit error.
 
