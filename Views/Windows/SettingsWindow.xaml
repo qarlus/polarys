@@ -48,8 +48,9 @@
                 </StackPanel>
             </Grid>
             <TabControl x:Name="SettingsTabs" Grid.Row="1" TabStripPlacement="Left" SelectedIndex="0" SelectionChanged="SettingsTabs_SelectionChanged">
-                <TabItem Header="{local:Loc General}" Tag="&#xE713;">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" HorizontalContentAlignment="Stretch">
+                <TabItem Header="{local:Loc General}" Tag="&#xE713;" HorizontalContentAlignment="Stretch">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False"
+                                  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                         <StackPanel Margin="{StaticResource SettingsPageInset}" MaxWidth="{StaticResource SettingsReadingWidth}" HorizontalAlignment="Stretch">
                             <TextBlock Text="{local:Loc General}" Style="{StaticResource SettingsHeading}" />
 
@@ -193,8 +194,9 @@
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>
-                <TabItem Header="{local:Loc Appearance}" Tag="&#xE790;">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" HorizontalContentAlignment="Stretch">
+                <TabItem Header="{local:Loc Appearance}" Tag="&#xE790;" HorizontalContentAlignment="Stretch">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False"
+                                  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                         <StackPanel Margin="{StaticResource SettingsPageInset}" MaxWidth="{StaticResource SettingsReadingWidth}" HorizontalAlignment="Stretch">
                             <TextBlock Text="{local:Loc Appearance}" Style="{StaticResource SettingsHeading}" />
 
@@ -347,7 +349,7 @@
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>
-                <TabItem x:Name="WidgetsTab" Header="{local:Loc Widgets}" Tag="&#xEA86;">
+                <TabItem x:Name="WidgetsTab" Header="{local:Loc Widgets}" Tag="&#xEA86;" HorizontalContentAlignment="Stretch">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False"
                                   HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                         <StackPanel Margin="{StaticResource SettingsPageInset}" MaxWidth="{StaticResource SettingsReadingWidth}" HorizontalAlignment="Stretch">
@@ -488,8 +490,9 @@
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>
-                <TabItem Header="{local:Loc Shortcuts}" Tag="&#xE765;">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" HorizontalContentAlignment="Stretch">
+                <TabItem Header="{local:Loc Shortcuts}" Tag="&#xE765;" HorizontalContentAlignment="Stretch">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False"
+                                  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                         <StackPanel Margin="{StaticResource SettingsPageInset}" MaxWidth="{StaticResource SettingsReadingWidth}" HorizontalAlignment="Stretch">
                             <TextBlock Text="{local:Loc Shortcuts}" Style="{StaticResource SettingsHeading}" />
 
