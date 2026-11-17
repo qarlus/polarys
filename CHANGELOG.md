@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.0 - 2026-11-17
+
+- First release as **Polarys**, a standalone continuation of OpenTaskbar, with a new aurora identity and README logo.
+- Centered dock icons on the full cell so they no longer ride high in the glass pill; the running indicator now overlays the cell.
+- Replaced the foreground app's filled selected cell with the aurora glow pool used by hover and active states.
+- Normalized Recycle Bin icon sizing and divider spacing.
+- Real application icons now always win: theme-pack images only apply to special items or apps with no resolvable icon.
+- Packaged apps hosted by ApplicationFrameHost/WwaHost resolve their own Store icons instead of the shared host icon.
+- Pinned shortcuts honor their custom `IconLocation` and launch through their `.lnk`, fixing dead clicks on packaged targets.
+- Raised the drag-start threshold so normal click jitter can no longer trigger DragDrop and swallow the release; single clicks now activate reliably.
+- Added manual CI rebuild trigger and Windows CI now validates every push and pull request to `master`.
+
 ## 0.2.7 - 2026-11-17
 
 - Added multi-monitor display selection and secondary dock app and widget scoping.
