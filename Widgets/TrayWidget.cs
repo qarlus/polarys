@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using OpenTaskbar.Services;
 
@@ -62,56 +63,18 @@ public sealed class TrayWidget : DockWidget
 
     internal UIElement BuildContent(IReadOnlyList<TrayApp> apps)
     {
-        var root = new StackPanel { Width = 280 };
+        var root = new StackPanel { Width = 308 };
         root.Children.Add(DockFlyout.Heading(UiText.Get("TrayApps")));
-        if (apps.Count == 0) root.Children.Add(DockFlyout.Caption(UiText.Get("TrayEmpty")));
-        foreach (var app in apps)
+        if (apps.Count == 0)
         {
-            var image = new Image { Source = app.Icon, Width = 20, Height = 20, Margin = new Thickness(0, 0, 10, 0) };
-            RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
-            var row = new DockPanel();
-            row.Children.Add(image);
-            row.Children.Add(new TextBlock { Text = app.Name, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis });
-            var open = DockFlyout.FlatButton(row, (_, _) =>
-            {
-                _flyout.Close();
-                Report(TrayIcons.Open(app));
-            }, app.Name);
-            var menu = new ContextMenu();
-            var closeItem = new MenuItem { Header = UiText.Get("CloseApplication"), Icon = FindResource("IconClose") };
-            closeItem.Click += (_, _) =>
-            {
-                _flyout.Close();
-                CloseApplicationRequested?.Invoke(app.ExecutablePath);
-            };
-            var terminateItem = new MenuItem { Header = UiText.Get("Terminate"), Icon = FindResource("IconTerminate") };
-            terminateItem.SetResourceReference(StyleProperty, "DestructiveMenuItem");
-            terminateItem.Click += (_, _) =>
-            {
-                _flyout.Close();
-                TerminateApplicationRequested?.Invoke(app.ExecutablePath);
-            };
-            menu.Items.Add(closeItem);
-            menu.Items.Add(terminateItem);
-            open.ContextMenu = menu;
-
-            // Tray apps may keep running after WM_CLOSE; force quit uses the dock's existing confirmation flow.
-            var quitIcon = new ContentControl
-            {
-                Content = FindResource("IconTerminate"), Width = 16, Height = 16
-            };
-            quitIcon.SetResourceReference(StyleProperty, "WidgetIcon");
-            quitIcon.SetResourceReference(ForegroundProperty, "TextPrimary");
-            var quit = DockFlyout.FlatButton(quitIcon, (_, _) =>
-            {
-                _flyout.Close();
-                TerminateApplicationRequested?.Invoke(app.ExecutablePath);
-            }, $"{app.Name}: {UiText.Get("Terminate")}");
-            var appRow = new DockPanel();
-            DockPanel.SetDock(quit, Dock.Right);
-            appRow.Children.Add(quit);
-            appRow.Children.Add(open);
-            root.Children.Add(appRow);
+            root.Children.Add(DockFlyout.Caption(UiText.Get("TrayEmpty")));
+        }
+        else
+        {
+            var grid = new UniformGrid { Columns = 4 };
+            foreach (var app in apps)
+                grid.Children.Add(BuildTile(app));
+            root.Children.Add(grid);
         }
 
         var settings = DockFlyout.FlatButton(new TextBlock { Text = UiText.Get("TraySettings"), FontWeight = FontWeights.SemiBold }, (_, _) =>
@@ -119,9 +82,68 @@ public sealed class TrayWidget : DockWidget
             _flyout.Close();
             Report(ShellShortcuts.OpenUri("ms-settings:taskbar"));
         });
-        settings.Margin = new Thickness(0, 6, 0, 0);
+        settings.Margin = new Thickness(0, 8, 0, 0);
         root.Children.Add(settings);
         root.Children.Add(DockFlyout.Caption(UiText.Get("TrayNote")));
         return root;
+    }
+
+    private UIElement BuildTile(TrayApp app)
+    {
+        var image = new Image { Source = app.Icon, Width = 22, Height = 22, Margin = new Thickness(0, 0, 0, 5) };
+        RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
+        var tileContent = new StackPanel();
+        tileContent.Children.Add(image);
+        tileContent.Children.Add(new TextBlock
+        {
+            Text = app.Name,
+            FontSize = 11,
+            TextAlignment = TextAlignment.Center,
+            TextTrimming = TextTrimming.CharacterEllipsis
+        });
+        var open = DockFlyout.FlatButton(tileContent, (_, _) =>
+        {
+            _flyout.Close();
+            Report(TrayIcons.Open(app));
+        }, app.Name);
+        open.Margin = new Thickness(2);
+        var menu = new ContextMenu();
+        var closeItem = new MenuItem { Header = UiText.Get("CloseApplication"), Icon = FindResource("IconClose") };
+        closeItem.Click += (_, _) =>
+        {
+            _flyout.Close();
+            CloseApplicationRequested?.Invoke(app.ExecutablePath);
+        };
+        var terminateItem = new MenuItem { Header = UiText.Get("Terminate"), Icon = FindResource("IconTerminate") };
+        terminateItem.SetResourceReference(StyleProperty, "DestructiveMenuItem");
+        terminateItem.Click += (_, _) =>
+        {
+            _flyout.Close();
+            TerminateApplicationRequested?.Invoke(app.ExecutablePath);
+        };
+        menu.Items.Add(closeItem);
+        menu.Items.Add(terminateItem);
+        open.ContextMenu = menu;
+
+        // Tray apps may keep running after WM_CLOSE; force quit uses the dock's existing confirmation flow.
+        var quitIcon = new ContentControl
+        {
+            Content = FindResource("IconTerminate"), Width = 11, Height = 11
+        };
+        quitIcon.SetResourceReference(StyleProperty, "WidgetIcon");
+        quitIcon.SetResourceReference(ForegroundProperty, "TextSecondary");
+        var quit = DockFlyout.FlatButton(quitIcon, (_, _) =>
+        {
+            _flyout.Close();
+            TerminateApplicationRequested?.Invoke(app.ExecutablePath);
+        }, $"{app.Name}: {UiText.Get("Terminate")}");
+        quit.HorizontalAlignment = HorizontalAlignment.Right;
+        quit.VerticalAlignment = VerticalAlignment.Top;
+        quit.Padding = new Thickness(4);
+
+        var cell = new Grid();
+        cell.Children.Add(open);
+        cell.Children.Add(quit);
+        return cell;
     }
 }

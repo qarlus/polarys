@@ -265,7 +265,6 @@
   "TrayApps": "Aplicativos em segundo plano",
   "TrayEmpty": "Não há aplicativos em execução com um ícone na área de notificação.",
   "TraySettings": "Configurações de notificações do Windows",
-  "TrayNote": "Clique em um aplicativo para abri-lo. O botão à direita encerra os processos após a confirmação. Clique com o botão direito para fechá-lo normalmente.",
   "Shortcuts": "Atalhos",
   "LauncherHotkey": "Atalho do Spotlight",
   "DockHotkey": "Mostrar/Ocultar dock",

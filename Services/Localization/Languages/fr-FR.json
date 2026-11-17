@@ -265,7 +265,6 @@
   "TrayApps": "Applications en arrière-plan",
   "TrayEmpty": "Aucune application en cours d’exécution n’a d’icône dans la zone de notification.",
   "TraySettings": "Paramètres de notification Windows",
-  "TrayNote": "Cliquez sur une application pour l’ouvrir. Le bouton de droite arrête ses processus après confirmation. Faites un clic droit pour la fermer normalement.",
   "Shortcuts": "Raccourcis",
   "LauncherHotkey": "Raccourci Spotlight",
   "DockHotkey": "Afficher/Masquer le dock",
