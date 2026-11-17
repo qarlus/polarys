@@ -1,6 +1,6 @@
-# Contributing to OpenTaskbar
+# Contributing to Polarys
 
-Thank you for your interest in contributing to OpenTaskbar!
+Thank you for your interest in contributing to Polarys! Polarys is a fork of [OpenTaskbar](https://github.com/alztrk/opentaskbar) — if your change applies to the shared codebase, consider upstreaming it there too.
 
 ## Language Policy
 

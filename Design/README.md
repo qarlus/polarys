@@ -1,6 +1,6 @@
-# OpenTaskbar Design System
+# Polarys Design System
 
-OpenTaskbar uses a lightweight, vector-driven design system implemented in pure WPF XAML without third-party UI dependencies.
+Polarys uses a lightweight, vector-driven design system implemented in pure WPF XAML without third-party UI dependencies.
 
 ---
 

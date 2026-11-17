@@ -1,22 +1,26 @@
-# OpenTaskbar
-
 <div align="center">
+
+<img src="docs/logo.svg" alt="Polarys" width="128" />
+
+# Polarys
 
 **A modern, customizable floating dock and modular widget system for Windows 10 and Windows 11.**
 
-[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D6?style=flat-square&logo=windows)](https://github.com/alztrk/opentaskbar)
-[![Runtime](https://img.shields.io/badge/.NET-10.0%20WPF-512BD4?style=flat-square&logo=dotnet)](https://github.com/alztrk/opentaskbar)
-[![Architecture](https://img.shields.io/badge/Architecture-x64-blue?style=flat-square)](https://github.com/alztrk/opentaskbar)
+*A polished continuation of [OpenTaskbar](https://github.com/alztrk/opentaskbar).*
+
+[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D6?style=flat-square&logo=windows)](https://github.com/qarlus/polarys)
+[![Runtime](https://img.shields.io/badge/.NET-10.0%20WPF-512BD4?style=flat-square&logo=dotnet)](https://github.com/qarlus/polarys)
+[![Architecture](https://img.shields.io/badge/Architecture-x64-blue?style=flat-square)](https://github.com/qarlus/polarys)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 [![Tests](https://img.shields.io/badge/Tests-969%20Passing-brightgreen?style=flat-square)](tests/OpenTaskbar.Tests)
 
 <br />
 
-<img src="docs/screenshots/hero-desktop.jpg" alt="OpenTaskbar Desktop Showcase" width="100%" />
+<img src="docs/screenshots/hero-desktop.jpg" alt="Polarys Desktop Showcase" width="100%" />
 
 <br />
 
-<img src="docs/screenshots/hero-dock-crop.png" alt="OpenTaskbar Floating Dock" width="100%" />
+<img src="docs/screenshots/hero-dock-crop.png" alt="Polarys Floating Dock" width="100%" />
 
 </div>
 
@@ -24,7 +28,7 @@
 
 ## Overview
 
-OpenTaskbar is a lightweight, macOS-inspired floating dock and taskbar replacement for Windows 10 and Windows 11. Built with pure WPF vector rendering, it delivers high performance, fluid magnification, live window thumbnail previews, modular hardware and media widgets, and foolproof native taskbar recovery.
+Polarys is a lightweight, macOS-inspired floating dock and taskbar replacement for Windows 10 and Windows 11. Built with pure WPF vector rendering, it delivers high performance, fluid magnification, live window thumbnail previews, modular hardware and media widgets, and foolproof native taskbar recovery.
 
 ---
 
@@ -39,7 +43,7 @@ OpenTaskbar is a lightweight, macOS-inspired floating dock and taskbar replaceme
 
 ### Theme Packs
 - **Theme Packs:** Restyle the dock with six bundled themes installed in `%LOCALAPPDATA%\OpenTaskbar\Themes` on first launch, or add your own theme packs there. Select them in Settings → Appearance → Theme.
-- **Languages:** The first launch follows the Windows display language when OpenTaskbar has a translation for it. Choose a language in Settings → Appearance; see [docs/localization.md](docs/localization.md) to add another locale.
+- **Languages:** The first launch follows the Windows display language when Polarys has a translation for it. Choose a language in Settings → Appearance; see [docs/localization.md](docs/localization.md) to add another locale.
 - **Icon Packs:** Replace app, Start button and Recycle Bin icons; match by executable name, full path, Store app ID, or simply name a file after the executable (`firefox.png`).
 - **Fallback Plates:** Apps without a pack image are placed on a Leaf, Petal, Rounded, or Circle plate so the whole dock matches.
 - **Widget Packs:** Replace design tokens (colors, gradients, corner radii, sizes, fonts) for the dock, widgets, menus, and Settings. See [docs/themes.md](docs/themes.md).
@@ -78,7 +82,7 @@ OpenTaskbar is a lightweight, macOS-inspired floating dock and taskbar replaceme
 - **Dock Menu:** Right-click the dock for the launcher, folder stacks, profiles, Task Manager, update checks, and settings.
 
 ### Foolproof Taskbar Recovery
-- **Zero Risk:** State journaling records every taskbar replacement action. On exit, system shutdown, or unexpected termination, OpenTaskbar automatically restores the native Windows taskbar.
+- **Zero Risk:** State journaling records every taskbar replacement action. On exit, system shutdown, or unexpected termination, Polarys automatically restores the native Windows taskbar.
 
 ---
 
@@ -118,14 +122,14 @@ OpenTaskbar is a lightweight, macOS-inspired floating dock and taskbar replaceme
 
 ### Portable Release
 
-Download `OpenTaskbar.exe` from [GitHub Releases](https://github.com/alztrk/opentaskbar/releases) and launch it directly. No installer or administrator privileges required.
+Download `OpenTaskbar.exe` from [GitHub Releases](https://github.com/qarlus/polarys/releases) and launch it directly. No installer or administrator privileges required.
 
 ### Build from Source
 
 ```powershell
 # Clone the repository
-git clone https://github.com/alztrk/opentaskbar.git
-cd opentaskbar
+git clone https://github.com/qarlus/polarys.git
+cd polarys
 
 # Run directly from source
 dotnet run --project OpenTaskbar.csproj
@@ -155,7 +159,7 @@ User preferences, pinned item order, and widget configurations are stored locall
 
 ## Design System
 
-For in-depth documentation on OpenTaskbar's design tokens, materials, typography, and layout metrics, see [Design/README.md](Design/README.md).
+For in-depth documentation on the Polarys design tokens, materials, typography, and layout metrics, see [Design/README.md](Design/README.md).
 
 ---
 
