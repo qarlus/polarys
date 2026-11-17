@@ -2,6 +2,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -34,9 +35,9 @@ internal static class ApplicationInteractionChecks
         coordinator.TerminateApplicationRequested += path => terminatePath = path;
         var trayApp = new TrayApp("Background app test", "tray-test.exe", null);
         var content = (StackPanel)tray.BuildContent([trayApp]);
-        var row = content.Children.OfType<DockPanel>().Single();
-        var terminate = row.Children.OfType<Button>().First();
-        var open = row.Children.OfType<Button>().Last();
+        var tile = content.Children.OfType<UniformGrid>().Single().Children.OfType<Grid>().Single();
+        var terminate = tile.Children.OfType<Button>().Single(button => button.ContextMenu is null);
+        var open = tile.Children.OfType<Button>().Single(button => button.ContextMenu is not null);
         var menu = open.ContextMenu ?? throw new InvalidOperationException("Tray app actions must be available.");
         Check(AutomationProperties.GetName(terminate).Contains(trayApp.Name)
             && AutomationProperties.GetName(terminate).Contains(UiText.Get("Terminate")),
@@ -57,7 +58,7 @@ internal static class ApplicationInteractionChecks
         Check(terminatePath == trayApp.ExecutablePath,
             "The context menu must route to the same termination flow as the visible action.");
         var empty = (StackPanel)tray.BuildContent([]);
-        Check(!empty.Children.OfType<DockPanel>().Any()
+        Check(!empty.Children.OfType<UniformGrid>().Any()
             && empty.Children.OfType<TextBlock>().Any(text => text.Text == UiText.Get("TrayEmpty")),
             "An empty tray must show its empty state without application actions.");
 
