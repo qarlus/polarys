@@ -283,7 +283,7 @@
   "TrayApps": "Background apps",
   "TrayEmpty": "No running apps with a notification area icon.",
   "TraySettings": "Notification area settings",
-  "TrayNote": "Click an app to open it. The button on the right ends its processes after confirmation. Right-click for a normal close.",
+  "TrayNote": "Click an app to open it. The corner button ends its processes after confirmation. Right-click for a normal close.",
   "Shortcuts": "Shortcuts",
   "LauncherHotkey": "Launcher shortcut",
   "LauncherHotkeyDescription": "Keyboard shortcut to open search and launcher.",

@@ -265,7 +265,6 @@
   "TrayApps": "Hintergrund-Apps",
   "TrayEmpty": "Keine laufende App hat ein Symbol im Infobereich.",
   "TraySettings": "Windows-Benachrichtigungseinstellungen",
-  "TrayNote": "Klicken Sie auf eine App, um sie zu öffnen. Die Schaltfläche rechts beendet nach Bestätigung ihre Prozesse. Klicken Sie mit der rechten Maustaste, um die App normal zu schließen.",
   "Shortcuts": "Tastenkombinationen",
   "LauncherHotkey": "Spotlight-Tastenkombination",
   "DockHotkey": "Dock ein-/ausblenden",

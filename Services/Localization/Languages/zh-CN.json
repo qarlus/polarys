@@ -265,7 +265,6 @@
   "TrayApps": "后台应用",
   "TrayEmpty": "没有正在运行且带有通知区域图标的应用。",
   "TraySettings": "Windows 通知设置",
-  "TrayNote": "点击应用即可打开。右侧按钮会在确认后结束其进程。右键单击可正常关闭应用。",
   "Shortcuts": "键盘快捷键",
   "LauncherHotkey": "Spotlight 快捷键",
   "DockHotkey": "显示 / 隐藏程序坞",
