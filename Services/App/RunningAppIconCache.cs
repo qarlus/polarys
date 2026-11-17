@@ -14,6 +14,14 @@ public sealed class RunningAppIconCache
     public const int AttemptLimit = 4;
     public static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(1);
 
+    // Hosted frames run every Store app under one shared executable, whose own icon belongs to none
+    // of them. Their identity icons come from the window's AppUserModelID instead.
+    private static readonly HashSet<string> SharedHostExecutables = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "applicationframehost.exe",
+        "wwahost.exe"
+    };
+
     private readonly Func<string, BitmapSource?> _resourceIcon;
     private readonly Func<nint, string?> _appId;
     private readonly Func<string, BitmapSource?> _appIcon;
@@ -60,7 +68,9 @@ public sealed class RunningAppIconCache
 
     public BitmapSource? Get(string executablePath, nint window)
     {
-        if (!_resourceIcons.TryGetValue(executablePath, out var icon))
+        BitmapSource? icon = null;
+        if (!SharedHostExecutables.Contains(Path.GetFileName(executablePath))
+            && !_resourceIcons.TryGetValue(executablePath, out icon))
         {
             _resourceIcons[executablePath] = icon = _resourceIcon(executablePath);
         }

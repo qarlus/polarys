@@ -126,8 +126,11 @@ internal static class ThemePackChecks
                 Check(ThemePacks.Select("test-theme", reload: true) && changes == 2, "A reload must notify.");
 
                 var themed = ThemePacks.ApplyIcon(original, @"C:\Apps\firefox.exe");
-                Check(themed is not null && themed.PixelWidth == 48, "A mapped app must use the pack image.");
-                Check(ReferenceEquals(themed, ThemePacks.ApplyIcon(original, @"C:\Apps\firefox.exe")), "Pack images must be cached.");
+                Check(themed is not null && themed.PixelWidth == ThemePacks.RenderSize,
+                    "A mapped app must keep its real icon on the pack plate.");
+                Check(ReferenceEquals(themed, ThemePacks.ApplyIcon(original, @"C:\Apps\firefox.exe")), "Plated icons must be cached.");
+                Check(ThemePacks.ApplyIcon(null, @"C:\Apps\firefox.exe")?.PixelWidth == 48,
+                    "An app without a resolved icon may fall back to the pack image.");
                 Check(ThemePacks.ApplyIcon(null, null, specialKey: IconPack.StartKey)?.PixelWidth == 40, "The @start image must replace the Start logo.");
 
                 var plated = ThemePacks.ApplyIcon(original, @"C:\Apps\unknown.exe");

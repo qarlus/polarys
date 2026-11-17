@@ -392,8 +392,8 @@ public partial class MainWindow
 
         var currentPoint = e.GetPosition(this);
         var diff = _dragStackStartPoint - currentPoint;
-        if (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance
-            || Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance)
+        if (Math.Abs(diff.X) > Services.DockMetrics.DragStartDistance
+            || Math.Abs(diff.Y) > Services.DockMetrics.DragStartDistance)
         {
             var stack = _draggedStack;
             _draggedStack = null;
@@ -494,12 +494,13 @@ public partial class MainWindow
                 continue;
             }
 
-            _pinnedApps.Add(new DockApp(pin.Name, pin.ExecutablePath)
+            var pinnedApp = new DockApp(pin.Name, pin.ExecutablePath)
             {
-                Icon = ThemePacks.ApplyIcon(ApplicationIconProvider.GetForFile(pin.ExecutablePath), pin.ExecutablePath),
                 LaunchArguments = pin.Arguments,
                 ShortcutPath = shortcutPath
-            });
+            };
+            pinnedApp.Icon = ThemePacks.ApplyIcon(ResolvePinnedIcon(pinnedApp), pinnedApp.ExecutablePath);
+            _pinnedApps.Add(pinnedApp);
             added++;
         }
 

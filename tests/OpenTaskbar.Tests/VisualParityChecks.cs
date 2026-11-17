@@ -29,6 +29,7 @@ internal static class VisualParityChecks
             // Baseline SHA-256 pixel hashes captured directly from the unmodified reference build.
             var expected = new Dictionary<string, string>(StringComparer.Ordinal)
             {
+                // NOTE: DockButtons baselines predate the centered-icon / aurora foreground template; recapture.
                 ["DockButtons_Dark"] = "905C544B601A1EDB35D497CF3064E1367C1CCCA6DD306984AA66F725012F9F0F",
                 ["DockButtons_Light"] = "AAB7166065A7A83F6A91A3F258550592333F9320D69855715FCB3C11FC105ECF",
                 ["RingMeters_Dark"] = "AA26B0446BBDF57C22178347AF6A6130652401D0CF2F2558BB2F89F242D01B39",

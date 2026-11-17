@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using OpenTaskbar.Models;
 using OpenTaskbar.Services;
@@ -422,7 +423,7 @@ public partial class MainWindow : Window
         var apps = result.Apps.ToList();
         foreach (var app in apps)
         {
-            app.Icon = ThemePacks.ApplyIcon(ApplicationIconProvider.GetForFile(app.ExecutablePath), app.ExecutablePath);
+            app.Icon = ThemePacks.ApplyIcon(ResolvePinnedIcon(app), app.ExecutablePath);
         }
 
         if (preferredOrder is { Count: > 0 })
@@ -453,6 +454,25 @@ public partial class MainWindow : Window
         }
         else if (result.SkippedCount > 0) ReportError("SkippedPins", true, result.SkippedCount);
         RebuildDockOrder();
+    }
+
+    // A pin's own icon location wins (that's the artwork the Windows taskbar showed); the executable's
+    // resource icon is the fallback so the dock never substitutes a generic image for the real one.
+    private static BitmapSource? ResolvePinnedIcon(DockApp app)
+    {
+        if (app.IconLocation is { } location)
+        {
+            var comma = location.LastIndexOf(',');
+            var file = Environment.ExpandEnvironmentVariables((comma >= 0 ? location[..comma] : location).Trim().Trim('"'));
+            var index = comma >= 0 && int.TryParse(location[(comma + 1)..].Trim(), out var parsed) ? parsed : 0;
+            if (File.Exists(file)
+                && (ApplicationIconProvider.GetForResource(file, index) ?? ApplicationIconProvider.GetForFile(file)) is { } icon)
+            {
+                return icon;
+            }
+        }
+
+        return ApplicationIconProvider.GetForFile(app.ExecutablePath);
     }
 
     private void WindowTracker_WindowsChanged(object? sender, IReadOnlyList<TrackedWindow> windows)
@@ -897,6 +917,15 @@ public partial class MainWindow : Window
     /// <summary>Starts a new instance even when the app already has windows (Shift/middle click, Ctrl+Shift for admin).</summary>
     private void LaunchApp(DockApp app, bool elevated)
     {
+        // The pinned shortcut is the most faithful launch: ShellExecute resolves its target, which also
+        // covers packaged apps whose install path File.Exists cannot see. A dead click is worse than a
+        // slower one, so the executable path is only the fallback.
+        if (!string.IsNullOrEmpty(app.ShortcutPath) && File.Exists(app.ShortcutPath)
+            && TryLaunch(app.ShortcutPath, null, elevated))
+        {
+            return;
+        }
+
         var executablePath = app.ExecutablePath;
         if (!File.Exists(executablePath))
         {
@@ -932,6 +961,30 @@ public partial class MainWindow : Window
         catch (IOException)
         {
             ReportError("ErrorAppFileInaccessible");
+        }
+    }
+
+    private static bool TryLaunch(string path, string? arguments, bool elevated)
+    {
+        try
+        {
+            using var _ = Process.Start(new ProcessStartInfo(path)
+            {
+                Arguments = arguments ?? string.Empty,
+                UseShellExecute = true,
+                Verb = elevated ? "runas" : string.Empty
+            });
+            return true;
+        }
+        catch (Win32Exception ex) when (elevated && ex.NativeErrorCode == 1223)
+        {
+            return true; // The user declined the UAC prompt.
+        }
+        catch (Exception ex) when (ex is Win32Exception or InvalidOperationException
+            or UnauthorizedAccessException or IOException)
+        {
+            AppLog.Warning($"Launch failed for {path}: {ex.Message}");
+            return false;
         }
     }
 
@@ -1581,7 +1634,7 @@ public partial class MainWindow : Window
     {
         foreach (var app in _pinnedApps)
         {
-            app.Icon = ThemePacks.ApplyIcon(ApplicationIconProvider.GetForFile(app.ExecutablePath), app.ExecutablePath);
+            app.Icon = ThemePacks.ApplyIcon(ResolvePinnedIcon(app), app.ExecutablePath);
         }
 
         RefreshRecycleBinIcon();

@@ -40,8 +40,8 @@ public partial class MainWindow
 
         var currentPoint = e.GetPosition(this);
         var diff = _dragStartPoint - currentPoint;
-        if (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance
-            || Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance)
+        if (Math.Abs(diff.X) > Services.DockMetrics.DragStartDistance
+            || Math.Abs(diff.Y) > Services.DockMetrics.DragStartDistance)
         {
             var app = _draggedApp;
             _draggedApp = null;
@@ -287,8 +287,8 @@ public partial class MainWindow
 
         var currentPoint = e.GetPosition(this);
         var diff = _startDragStartPoint - currentPoint;
-        if (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance
-            || Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance)
+        if (Math.Abs(diff.X) > Services.DockMetrics.DragStartDistance
+            || Math.Abs(diff.Y) > Services.DockMetrics.DragStartDistance)
         {
             _isStartPressing = false;
             _previewCloseTimer.Stop();

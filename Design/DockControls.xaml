@@ -54,7 +54,8 @@
                             <!-- Aurora hover: a soft light pool under the icon instead of a hover box. -->
                             <Ellipse x:Name="HoverGlow" Grid.RowSpan="2" Margin="-6,0,-6,-4" Fill="{DynamicResource IconHoverGlow}"
                                      Opacity="0" IsHitTestVisible="False" />
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            <!-- Icons center on the whole cell; the indicator strip below is an overlay, not reserved space. -->
+                            <ContentPresenter Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" />
                             <!-- Running apps get a refined luminous dot; the foreground app a vibrant glowing mini capsule. -->
                             <Rectangle x:Name="ActiveIndicatorGlow" Grid.Row="1" Height="6" Width="14" RadiusX="3" RadiusY="3"
                                        Fill="#4538BDF8" VerticalAlignment="Center" HorizontalAlignment="Center"
@@ -65,8 +66,22 @@
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                            <Setter TargetName="ActiveIndicator" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="ActiveIndicator" Property="Opacity" Value="0.75" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsForeground}" Value="True">
+                            <Setter TargetName="HoverGlow" Property="Opacity" Value="0.55" />
+                            <Setter TargetName="ActiveIndicatorGlow" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="ActiveIndicator" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="ActiveIndicator" Property="Opacity" Value="1.0" />
+                            <Setter TargetName="ActiveIndicator" Property="Width" Value="8" />
+                            <Setter TargetName="ActiveIndicator" Property="Height" Value="4" />
+                            <Setter TargetName="ActiveIndicator" Property="RadiusX" Value="2" />
+                            <Setter TargetName="ActiveIndicator" Property="RadiusY" Value="2" />
+                            <Setter TargetName="ActiveIndicator" Property="Fill" Value="{DynamicResource IndicatorForegroundBrush}" />
+                        </DataTrigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Surface" Property="Background" Value="Transparent" />
                             <Setter TargetName="HoverGlow" Property="Opacity" Value="1" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
@@ -78,21 +93,6 @@
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource StrokeFocus}" />
                         </Trigger>
-                        <DataTrigger Binding="{Binding IsRunning}" Value="True">
-                            <Setter TargetName="ActiveIndicator" Property="Visibility" Value="Visible" />
-                            <Setter TargetName="ActiveIndicator" Property="Opacity" Value="0.75" />
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding IsForeground}" Value="True">
-                            <Setter TargetName="Surface" Property="Background" Value="{DynamicResource SurfaceSelectedStrong}" />
-                            <Setter TargetName="ActiveIndicatorGlow" Property="Visibility" Value="Visible" />
-                            <Setter TargetName="ActiveIndicator" Property="Visibility" Value="Visible" />
-                            <Setter TargetName="ActiveIndicator" Property="Opacity" Value="1.0" />
-                            <Setter TargetName="ActiveIndicator" Property="Width" Value="8" />
-                            <Setter TargetName="ActiveIndicator" Property="Height" Value="4" />
-                            <Setter TargetName="ActiveIndicator" Property="RadiusX" Value="2" />
-                            <Setter TargetName="ActiveIndicator" Property="RadiusY" Value="2" />
-                            <Setter TargetName="ActiveIndicator" Property="Fill" Value="{DynamicResource IndicatorForegroundBrush}" />
-                        </DataTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>

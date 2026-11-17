@@ -30,6 +30,12 @@ public static class DockMetrics
     // Previews.
     public const double PreviewGap = 18;
 
+    /// <summary>
+    /// Pointer travel (DIP) before a press becomes a drag. The system minimum (4 DIP) is smaller than
+    /// normal click jitter on 38–50 DIP cells, so a stricter threshold keeps single clicks single.
+    /// </summary>
+    public const double DragStartDistance = 10;
+
     // Motion (ms).
     public const double AutoHideDelayMs = 400;
     public const double RevealMs = 220;

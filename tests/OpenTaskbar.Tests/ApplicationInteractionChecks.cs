@@ -85,22 +85,27 @@ internal static class ApplicationInteractionChecks
                 Flush();
                 var firstSurface = (Border)firstButton.Template.FindName("Surface", firstButton);
                 var secondSurface = (Border)secondButton.Template.FindName("Surface", secondButton);
-                Check(firstSurface.Background == application.FindResource("SurfaceSelectedStrong"),
-                    "The foreground application must have a background without keyboard focus.");
-                Check(secondButton.IsKeyboardFocused && IsTransparent(secondSurface.Background),
-                    "Keyboard focus on a background app must not create an active background.");
+                var firstGlow = (FrameworkElement)firstButton.Template.FindName("HoverGlow", firstButton);
+                var secondGlow = (FrameworkElement)secondButton.Template.FindName("HoverGlow", secondButton);
+                var firstCapsule = (FrameworkElement)firstButton.Template.FindName("ActiveIndicatorGlow", firstButton);
+                var secondCapsule = (FrameworkElement)secondButton.Template.FindName("ActiveIndicatorGlow", secondButton);
+                Check(firstGlow.Opacity == 0.55 && firstCapsule.Visibility == Visibility.Visible
+                    && IsTransparent(firstSurface.Background),
+                    "The foreground application must carry the resting aurora glow without keyboard focus.");
+                Check(secondButton.IsKeyboardFocused && IsTransparent(secondSurface.Background) && secondGlow.Opacity == 0,
+                    "Keyboard focus on a background app must not create an active glow.");
                 Check(secondSurface.BorderBrush == application.FindResource("StrokeFocus"),
                     "Keyboard navigation must retain a visible focus outline.");
                 first.IsForeground = false;
                 second.IsForeground = true;
                 Flush();
-                Check(IsTransparent(firstSurface.Background)
-                    && secondSurface.Background == application.FindResource("SurfaceSelectedStrong"),
-                    "Switching applications must move the foreground background immediately.");
+                Check(firstGlow.Opacity == 0 && firstCapsule.Visibility == Visibility.Collapsed
+                    && secondGlow.Opacity == 0.55 && secondCapsule.Visibility == Visibility.Visible,
+                    "Switching applications must move the foreground glow immediately.");
                 second.IsForeground = false;
                 Flush();
-                Check(secondButton.IsKeyboardFocused && IsTransparent(secondSurface.Background),
-                    "Minimizing the selected app must clear its background even while its button retains focus.");
+                Check(secondButton.IsKeyboardFocused && IsTransparent(secondSurface.Background) && secondGlow.Opacity == 0,
+                    "Minimizing the selected app must clear its glow even while its button retains focus.");
                 first.IsForeground = true;
                 Flush();
                 var directory = Path.Combine(Path.GetTempPath(), "OpenTaskbarInteractionChecks");

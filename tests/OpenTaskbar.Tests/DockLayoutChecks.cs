@@ -340,6 +340,10 @@ internal static class DockLayoutChecks
         Check(rightPlacements[0].Point.Y == (targetSize.Height - popupSize.Height) / 2, "Right edge primary placement must be vertically centered.");
         DockFlyout.Edge = DockEdge.Bottom;
 
+        Check(DockMetrics.DragStartDistance > SystemParameters.MinimumHorizontalDragDistance
+            && DockMetrics.DragStartDistance < DockMetrics.MinCellSize,
+            "Drag start must outlast click jitter without delaying a real reorder.");
+
         foreach (var size in new[] { DockSize.Compact, DockSize.Medium, DockSize.Large })
         foreach (var scale in new[] { 0.75, 1.0, 1.25, 1.5 })
         {

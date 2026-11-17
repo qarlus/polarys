@@ -408,8 +408,8 @@ public sealed class WidgetCoordinator : IDisposable
 
         var currentPoint = e.GetPosition(_strip);
         var diff = _dragStartPoint - currentPoint;
-        if (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance
-            || Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance)
+        if (Math.Abs(diff.X) > DockMetrics.DragStartDistance
+            || Math.Abs(diff.Y) > DockMetrics.DragStartDistance)
         {
             var targetWidget = _draggedWidget;
             _draggedWidget = null;

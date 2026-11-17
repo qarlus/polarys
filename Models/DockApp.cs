@@ -19,6 +19,10 @@ public sealed class DockApp(string name, string executablePath) : INotifyPropert
     [JsonIgnore]
     public string? ShortcutPath { get; init; }
 
+    // A pinned shortcut's custom icon source ("file,index"); null uses the executable's own icon.
+    [JsonIgnore]
+    public string? IconLocation { get; init; }
+
     // Notifies because packaged apps can receive their icon after the dock entry is created.
     [JsonIgnore]
     public BitmapSource? Icon { get => _icon; set => SetField(ref _icon, value); }

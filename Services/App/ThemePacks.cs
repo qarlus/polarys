@@ -261,13 +261,21 @@ public static class ThemePacks
         return dictionary.Contains(key) && !ThemeManager.IsManagedDictionary(dictionary) ? dictionary : null;
     }
 
-    /// <summary>The theme's image for an app or special item, the original placed on the theme's plate, or the original.</summary>
+    /// <summary>
+    /// The original icon on the theme's plate. The theme's own image only applies to special items
+    /// (<c>@start</c>, <c>@recyclebin</c>) or to an app whose real icon could not be resolved, so an
+    /// application is never replaced by the pack's generic category artwork.
+    /// </summary>
     public static BitmapSource? ApplyIcon(BitmapSource? original, string? executablePath, string? appId = null, string? specialKey = null, int targetPixels = 0)
     {
         var pack = Current?.Icons;
         if (pack is null) return original;
-        var file = pack.FindIconFile(executablePath, appId, specialKey);
-        if (file is not null && LoadImage(file, targetPixels) is { } themed) return themed;
+        if (specialKey is not null || original is null)
+        {
+            var file = pack.FindIconFile(executablePath, appId, specialKey);
+            if (file is not null && LoadImage(file, targetPixels) is { } themed) return themed;
+        }
+
         // Special items keep their built-in look unless the pack draws them.
         if (original is null || specialKey == IconPack.StartKey || pack.Fallback.Shape == IconPackShape.None) return original;
         if (Plated.TryGetValue(original, out var plated)) return plated;
