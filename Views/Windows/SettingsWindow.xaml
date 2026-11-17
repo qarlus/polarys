@@ -16,8 +16,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <DataTemplate x:Key="SettingsWidgetOptionTemplate">
-                <widgets:WidgetCatalogItem Width="360" Margin="0,0,14,14"
-                                           InstallationRequested="WidgetInstallation_Click"
+                <widgets:WidgetCatalogItem InstallationRequested="WidgetInstallation_Click"
                                            SettingsRequested="WidgetSettings_Click" />
             </DataTemplate>
         </ResourceDictionary>
@@ -350,19 +349,21 @@
                 </TabItem>
                 <TabItem x:Name="WidgetsTab" Header="{local:Loc Widgets}" Tag="&#xEA86;">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False"
-                                  HorizontalContentAlignment="Stretch">
+                                  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                         <StackPanel Margin="{StaticResource SettingsPageInset}" MaxWidth="{StaticResource SettingsReadingWidth}" HorizontalAlignment="Stretch">
                             <TextBlock Text="{local:Loc Widgets}" Style="{StaticResource SettingsHeading}" Margin="0,0,0,4" />
                             <TextBlock Text="{local:Loc WidgetsDescription}" Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,16" TextWrapping="Wrap" />
 
                             <TextBlock Text="{local:Loc SectionWidgetsCatalog}" Style="{StaticResource SettingsSectionHeading}" Margin="0,0,0,12" />
-                            <ItemsControl x:Name="WidgetOptionsList" ItemTemplate="{StaticResource SettingsWidgetOptionTemplate}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
+                            <Border Style="{StaticResource SettingsRow}" Padding="16,16,4,4">
+                                <ItemsControl x:Name="WidgetOptionsList" ItemTemplate="{StaticResource SettingsWidgetOptionTemplate}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                            </Border>
                             <Grid x:Name="WidgetPanelsPool" Visibility="Collapsed">
                                 <Border x:Name="ClockOptions" Visibility="Collapsed" Background="Transparent" BorderThickness="0">
                                     <StackPanel>
