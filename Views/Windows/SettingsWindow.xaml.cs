@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -35,6 +36,14 @@ public partial class SettingsWindow : Window
     private bool _closed;
     private bool _sourceReady;
     private HwndSource? _source;
+    private string? _editingThemeId;
+    private ThemePack? _editingPack;
+    private WidgetPackManifest _editorManifest = new();
+    private ThemeEditScope _editorScope = ThemeEditScope.Dark;
+    private IReadOnlyList<ThemeToken>? _editorTokens;
+    private bool _editorBusy;
+    private readonly DispatcherTimer _themeEditTimer = new() { Interval = TimeSpan.FromMilliseconds(350) };
+    private (ThemeToken Token, Func<JsonElement?> Parse, Action Refresh)? _pendingTokenEdit;
     private readonly string _radioGroupScope = Guid.NewGuid().ToString("N");
     private readonly RoutedEventHandler _preferenceEditedHandler;
 
@@ -55,6 +64,10 @@ public partial class SettingsWindow : Window
         WidgetOptionsList.ItemsSource = _widgetOptions;
         _preferences.Changed += Preferences_Changed;
         _widgetPreviewTimer.Tick += WidgetPreviewTimer_Tick;
+        _themeEditTimer.Tick += (_, _) => FlushPendingTokenEdit();
+        ThemeEditorScopeDark.Checked += ThemeEditorScope_Changed;
+        ThemeEditorScopeLight.Checked += ThemeEditorScope_Changed;
+        ThemeEditorScopeShared.Checked += ThemeEditorScope_Changed;
         _autoSaveTimer.Tick += (_, _) =>
         {
             _autoSaveTimer.Stop();
@@ -461,7 +474,21 @@ public partial class SettingsWindow : Window
         if (string.IsNullOrWhiteSpace(name)) return;
         var id = ThemePackTransfer.CreateTheme(name, null, null);
         ReloadThemePacks(id);
-        MessageBox.Show(this, UiText.Get("ThemePackCreated"), "OpenTaskbar", MessageBoxButton.OK, MessageBoxImage.Information);
+        OpenThemeEditor(id);
+    }
+
+    private void ThemePackEdit_Click(object sender, RoutedEventArgs e)
+    {
+        var selected = (ThemePackBox.SelectedItem as ThemePackChoice)?.Id;
+        if (selected is null)
+        {
+            // Restyling the built-in look starts a fresh theme the user can name.
+            var name = TextPrompt.Ask(UiText.Get("ThemePackEdit"), UiText.Get("ThemePackNew"), UiText.Get("ThemePackNewDefault"));
+            if (string.IsNullOrWhiteSpace(name)) return;
+            selected = ThemePackTransfer.CreateTheme(name, null, null);
+            ReloadThemePacks(selected);
+        }
+        OpenThemeEditor(selected);
     }
 
     private void ThemePackDuplicate_Click(object sender, RoutedEventArgs e)
@@ -529,6 +556,303 @@ public partial class SettingsWindow : Window
         _initializing = false;
         ThemePacks.Select(selected, reload: true);
         ThemePacks.ApplyWidgets(_preferences.Current.Theme);
+    }
+
+    private void OpenThemeEditor(string themeId)
+    {
+        var pack = ThemePacks.Discover().FirstOrDefault(p => string.Equals(p.Id, themeId, StringComparison.OrdinalIgnoreCase));
+        if (pack is null) { AppLog.ReportError("ErrorThemeMissing"); return; }
+        _editingThemeId = themeId;
+        _editingPack = pack;
+        _editorManifest = ThemeEditor.LoadManifest(pack);
+        _editorTokens ??= ThemeEditor.Catalog();
+        _editorScope = _preferences.Current.Theme == AppTheme.Light ? ThemeEditScope.Light : ThemeEditScope.Dark;
+        ThemeEditorTitle.Text = $"{UiText.Get("ThemeEditorTitle")} — {pack.DisplayName}";
+        ThemeEditorHint.Text = UiText.Get("ThemeEditorHint");
+        _editorBusy = true;
+        ThemeEditorScopeDark.IsChecked = _editorScope == ThemeEditScope.Dark;
+        ThemeEditorScopeLight.IsChecked = _editorScope == ThemeEditScope.Light;
+        ThemeEditorScopeShared.IsChecked = _editorScope == ThemeEditScope.Shared;
+        _editorBusy = false;
+        BuildThemeEditorRows();
+        ThemeEditorPanel.Visibility = Visibility.Visible;
+    }
+
+    private void ThemeEditorBack_Click(object sender, RoutedEventArgs e)
+    {
+        FlushPendingTokenEdit();
+        ThemeEditorPanel.Visibility = Visibility.Collapsed;
+        _editingThemeId = null;
+        _editingPack = null;
+    }
+
+    private void ThemeEditorScope_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_editorBusy || sender is not RadioButton { IsChecked: true }) return;
+        FlushPendingTokenEdit();
+        _editorScope = ReferenceEquals(sender, ThemeEditorScopeDark) ? ThemeEditScope.Dark
+            : ReferenceEquals(sender, ThemeEditorScopeLight) ? ThemeEditScope.Light
+            : ThemeEditScope.Shared;
+        BuildThemeEditorRows();
+    }
+
+    private Dictionary<string, JsonElement> EditorSection() => ThemeEditor.Section(_editorManifest, _editorScope);
+
+    private void BuildThemeEditorRows()
+    {
+        ThemeEditorRows.Children.Clear();
+        if (_editorTokens is null || _editingPack is null) return;
+        var section = EditorSection();
+        var active = _preferences.Current.Theme;
+        var first = true;
+        string? lastGroup = null;
+        foreach (var token in _editorTokens)
+        {
+            if (token.Group != lastGroup)
+            {
+                lastGroup = token.Group;
+                ThemeEditorRows.Children.Add(new TextBlock
+                {
+                    Text = UiText.Get("ThemeEditorGroup" + lastGroup),
+                    Style = (Style)FindResource("SettingsSectionHeading"),
+                    Margin = new Thickness(0, first ? 0 : 14, 0, 8)
+                });
+                first = false;
+            }
+            ThemeEditorRows.Children.Add(BuildTokenRow(token, section, active));
+        }
+    }
+
+    private FrameworkElement BuildTokenRow(ThemeToken token, Dictionary<string, JsonElement> section, AppTheme active)
+    {
+        var baseValue = token.BaseFor(_editorScope, active);
+        var effective = TokenValue(token, baseValue, section);
+
+        var label = new TextBlock { Style = (Style)FindResource("SettingsRowLabel"), VerticalAlignment = VerticalAlignment.Center };
+        var reset = new Button
+        {
+            Content = "\uE777",
+            FontFamily = new FontFamily("Segoe MDL2 Assets"),
+            Style = (Style)FindResource("SettingsButton"),
+            Padding = new Thickness(6, 2, 6, 2),
+            Margin = new Thickness(8, 0, 0, 0),
+            ToolTip = UiText.Get("ThemeEditorReset")
+        };
+        System.Windows.Automation.AutomationProperties.SetName(reset, UiText.Get("ThemeEditorReset"));
+
+        void MarkOverridden()
+        {
+            var hasOverride = EditorSection().ContainsKey(token.Key);
+            label.Text = token.Label + (hasOverride ? " \u2022" : string.Empty);
+            reset.Visibility = hasOverride ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        var editor = BuildTokenEditor(token, baseValue, effective, MarkOverridden);
+        MarkOverridden();
+        reset.Click += (_, _) =>
+        {
+            FlushPendingTokenEdit();
+            CommitToken(token, null);
+            BuildThemeEditorRows();
+        };
+
+        var dock = new DockPanel();
+        DockPanel.SetDock(reset, Dock.Right);
+        DockPanel.SetDock(editor, Dock.Right);
+        dock.Children.Add(reset);
+        dock.Children.Add(editor);
+        dock.Children.Add(label);
+        return new Border { Style = (Style)FindResource("SettingsRow"), Child = dock };
+    }
+
+    private object TokenValue(ThemeToken token, object baseValue, Dictionary<string, JsonElement>? section = null)
+    {
+        section ??= EditorSection();
+        return section.TryGetValue(token.Key, out var json) ? WidgetPack.Convert(json, baseValue) ?? baseValue : baseValue;
+    }
+
+    /// <summary>The right-hand control for a token: color fields (gradient stops plus a direction
+    /// picker) for brushes, a text field for radii, thicknesses, sizes and fonts.</summary>
+    private FrameworkElement BuildTokenEditor(ThemeToken token, object baseValue, object effective, Action markOverridden)
+    {
+        if (effective is not Brush brush)
+        {
+            var field = TokenField(ThemeEditor.Display(effective), token, effective is FontFamily ? 220 : 140);
+            field.TextChanged += (_, _) => QueueTokenEdit(token, () => ParseScalar(field, baseValue), markOverridden);
+            field.LostFocus += (_, _) => CommitScalar(token, field, baseValue, markOverridden);
+            return field;
+        }
+
+        var panel = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+        var swatch = new Border
+        {
+            Width = 42,
+            Height = 24,
+            CornerRadius = new CornerRadius(5),
+            Background = brush,
+            BorderBrush = (Brush)FindResource("StrokeSubtle"),
+            BorderThickness = new Thickness(1),
+            Margin = new Thickness(0, 0, 10, 0),
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        panel.Children.Add(swatch);
+
+        if (brush is GradientBrush)
+        {
+            var fields = ((GradientBrush)brush).GradientStops.Select(stop => TokenField(stop.Color.ToString(), token, 84)).ToList();
+            var direction = new ComboBox { Width = 104, VerticalAlignment = VerticalAlignment.Center };
+            var names = new[] { "Vertical", "Horizontal", "Diagonal" };
+            direction.ItemsSource = names.Select(n => new ComboBoxItem { Content = UiText.Get("ThemeEditorDirection" + n), Tag = n.ToLowerInvariant() }).ToList();
+            var current = brush is LinearGradientBrush linear
+                ? linear.EndPoint is { X: 1, Y: 0 } ? "horizontal" : linear.EndPoint is { X: 1, Y: 1 } ? "diagonal" : "vertical"
+                : "vertical";
+            direction.SelectedIndex = Array.IndexOf(names, char.ToUpperInvariant(current[0]) + current[1..]);
+
+            JsonElement? Parse()
+            {
+                var raw = JsonSerializer.SerializeToElement(new
+                {
+                    stops = fields.Select(f => f.Text.Trim()).ToArray(),
+                    direction = (direction.SelectedItem as ComboBoxItem)?.Tag as string ?? "vertical"
+                });
+                return WidgetPack.Convert(raw, baseValue) is { } converted ? ThemeEditor.Serialize(converted) : null;
+            }
+
+            void Commit()
+            {
+                FlushPendingTokenEdit();
+                if (Parse() is not { } json)
+                {
+                    if (TokenValue(token, baseValue) is GradientBrush restored)
+                        for (var i = 0; i < fields.Count && i < restored.GradientStops.Count; i++)
+                            fields[i].Text = restored.GradientStops[i].Color.ToString();
+                    return;
+                }
+                CommitToken(token, json);
+                swatch.Background = WidgetPack.Convert(json, baseValue) as Brush ?? swatch.Background;
+                markOverridden();
+            }
+
+            foreach (var field in fields)
+            {
+                panel.Children.Add(field);
+                field.TextChanged += (_, _) => QueueTokenEdit(token, Parse, () =>
+                {
+                    if (Parse() is { } json) swatch.Background = WidgetPack.Convert(json, baseValue) as Brush ?? swatch.Background;
+                    markOverridden();
+                });
+                field.LostFocus += (_, _) => Commit();
+            }
+            panel.Children.Add(direction);
+            direction.SelectionChanged += (_, _) => Commit();
+            return panel;
+        }
+
+        var hex = TokenField(ThemeEditor.Display(effective), token, 96);
+        panel.Children.Add(hex);
+
+        JsonElement? ParseSolid()
+        {
+            var raw = JsonSerializer.SerializeToElement(hex.Text.Trim());
+            return WidgetPack.Convert(raw, baseValue) is { } converted ? ThemeEditor.Serialize(converted) : null;
+        }
+
+        void CommitSolid()
+        {
+            FlushPendingTokenEdit();
+            if (ParseSolid() is not { } json)
+            {
+                hex.Text = ThemeEditor.Display(TokenValue(token, baseValue));
+                return;
+            }
+            CommitToken(token, json);
+            swatch.Background = WidgetPack.Convert(json, baseValue) as Brush ?? swatch.Background;
+            markOverridden();
+        }
+
+        hex.TextChanged += (_, _) => QueueTokenEdit(token, ParseSolid, () =>
+        {
+            if (ParseSolid() is { } json) swatch.Background = WidgetPack.Convert(json, baseValue) as Brush ?? swatch.Background;
+            markOverridden();
+        });
+        hex.LostFocus += (_, _) => CommitSolid();
+        return panel;
+    }
+
+    private TextBox TokenField(string text, ThemeToken token, double width)
+    {
+        var field = new TextBox
+        {
+            Text = text,
+            Width = width,
+            Margin = new Thickness(0, 0, 8, 0),
+            VerticalAlignment = VerticalAlignment.Center,
+            Tag = token.Key
+        };
+        System.Windows.Automation.AutomationProperties.SetName(field, token.Label);
+        return field;
+    }
+
+    private void QueueTokenEdit(ThemeToken token, Func<JsonElement?> parse, Action refresh)
+    {
+        _pendingTokenEdit = (token, parse, refresh);
+        _themeEditTimer.Stop();
+        _themeEditTimer.Start();
+    }
+
+    private void FlushPendingTokenEdit()
+    {
+        _themeEditTimer.Stop();
+        if (_pendingTokenEdit is { } pending)
+        {
+            _pendingTokenEdit = null;
+            if (pending.Parse() is { } json)
+            {
+                CommitToken(pending.Token, json);
+                pending.Refresh();
+            }
+        }
+    }
+
+    private JsonElement? ParseScalar(TextBox box, object baseValue)
+    {
+        var text = box.Text.Trim();
+        JsonElement raw;
+        if (baseValue is double or CornerRadius or Thickness
+            && double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var number))
+            raw = JsonSerializer.SerializeToElement(number);
+        else
+            raw = JsonSerializer.SerializeToElement(text);
+        return WidgetPack.Convert(raw, baseValue) is { } converted ? ThemeEditor.Serialize(converted) : null;
+    }
+
+    private void CommitScalar(ThemeToken token, TextBox box, object baseValue, Action refresh)
+    {
+        FlushPendingTokenEdit();
+        if (ParseScalar(box, baseValue) is not { } json)
+        {
+            box.Text = ThemeEditor.Display(TokenValue(token, baseValue));
+            return;
+        }
+        CommitToken(token, json);
+        refresh();
+    }
+
+    private void CommitToken(ThemeToken token, JsonElement? json)
+    {
+        if (_editingPack is null || _editingThemeId is null) return;
+        var section = EditorSection();
+        if (json is null) section.Remove(token.Key);
+        else section[token.Key] = json.Value;
+        _editorManifest = ThemeEditor.WithSection(_editorManifest, _editorScope, section);
+        if (ThemeEditor.SaveManifest(_editingPack, _editorManifest) is { } error)
+        {
+            AppLog.ReportError(error);
+            return;
+        }
+        ThemePacks.Select(_editingThemeId, reload: true);
+        ThemePacks.ApplyWidgets(_preferences.Current.Theme);
+        UpdateThemePackDetails();
     }
 
     private SystemMeters ReadStatsMeters() =>

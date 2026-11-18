@@ -230,6 +230,7 @@
                                 <WrapPanel Margin="0,4,0,0">
                                     <Button Content="{local:Loc ThemePackOpenFolder}" Style="{StaticResource SettingsButton}" Click="ThemePackOpenFolder_Click" Margin="0,0,8,6" />
                                     <Button Content="{local:Loc ThemePackReload}" Style="{StaticResource SettingsButton}" Click="ThemePackReload_Click" Margin="0,0,8,6" />
+                                    <Button x:Name="ThemePackEditButton" Content="{local:Loc ThemePackEdit}" Style="{StaticResource SettingsButton}" Click="ThemePackEdit_Click" Margin="0,0,8,6" />
                                     <Button Content="{local:Loc ThemePackNew}" Style="{StaticResource SettingsButton}" Click="ThemePackNew_Click" Margin="0,0,8,6" />
                                     <Button Content="{local:Loc ThemePackDuplicate}" Style="{StaticResource SettingsButton}" Click="ThemePackDuplicate_Click" Margin="0,0,8,6" />
                                     <Button Content="{local:Loc ThemePackExport}" Style="{StaticResource SettingsButton}" Click="ThemePackExport_Click" Margin="0,0,8,6" />
@@ -560,6 +561,38 @@
                     </ScrollViewer>
                 </TabItem>
             </TabControl>
+
+            <!-- Theme editor: replaces the tab pages while a theme is being restyled. -->
+            <Grid x:Name="ThemeEditorPanel" Grid.Row="1" Visibility="Collapsed" Background="{DynamicResource SettingsGlassMaterial}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <DockPanel Margin="20,14,20,10">
+                    <Button x:Name="ThemeEditorBackButton" DockPanel.Dock="Left" Style="{StaticResource SettingsButton}" Click="ThemeEditorBack_Click"
+                            AutomationProperties.Name="{local:Loc ThemeEditorBack}" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE72B;" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <TextBlock Text="{local:Loc ThemeEditorBack}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Border DockPanel.Dock="Right" Width="270" Height="32" CornerRadius="7" Background="{DynamicResource SettingsControl}" BorderBrush="{DynamicResource StrokeSubtle}" BorderThickness="1" Padding="2" VerticalAlignment="Center">
+                        <UniformGrid Columns="3">
+                            <RadioButton x:Name="ThemeEditorScopeDark" GroupName="ThemeEditorScope" Content="{local:Loc Dark}" Style="{StaticResource SettingsSegmentChoice}" />
+                            <RadioButton x:Name="ThemeEditorScopeLight" GroupName="ThemeEditorScope" Content="{local:Loc Light}" Style="{StaticResource SettingsSegmentChoice}" />
+                            <RadioButton x:Name="ThemeEditorScopeShared" GroupName="ThemeEditorScope" Content="{local:Loc ThemeEditorScopeShared}" Style="{StaticResource SettingsSegmentChoice}" />
+                        </UniformGrid>
+                    </Border>
+                    <TextBlock x:Name="ThemeEditorTitle" FontWeight="SemiBold" FontSize="15" VerticalAlignment="Center" Margin="12,0"
+                               TextTrimming="CharacterEllipsis" />
+                </DockPanel>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" HorizontalContentAlignment="Stretch">
+                    <StackPanel x:Name="ThemeEditorRows" Margin="20,2,20,8" MaxWidth="{StaticResource SettingsReadingWidth}" HorizontalAlignment="Stretch" />
+                </ScrollViewer>
+                <TextBlock Grid.Row="2" x:Name="ThemeEditorHint" FontSize="11" Foreground="{DynamicResource TextSecondary}"
+                           Margin="20,6,20,12" TextWrapping="Wrap" />
+            </Grid>
         </Grid>
     </Border>
 </Window>

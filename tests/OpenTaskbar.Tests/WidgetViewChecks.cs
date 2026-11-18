@@ -284,6 +284,9 @@ internal static class WidgetViewChecks
                 var preferences = new ApplicationPreferences(new DockSettingsStore(settingsPath));
                 Check(preferences.Save(preferences.Current with { Theme = theme, Language = AppLanguage.Turkish }) is null,
                     "The isolated settings fixture must save successfully.");
+                var previousThemeRoot = ThemePacks.Root;
+                ThemePacks.Root = Path.Combine(Path.GetTempPath(), $"OpenTaskbarThemes-{Guid.NewGuid():N}");
+                var editorThemeId = ThemePackTransfer.CreateTheme("Editor test", null, null);
                 var settings = new OpenTaskbar.SettingsWindow(preferences);
                 try
                 {
@@ -362,10 +365,42 @@ internal static class WidgetViewChecks
                     Check(preferences.Current.WeatherCity == "İzmir", "Typing a city must auto-save WeatherCity.");
                     weatherExpandBtn.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                     Check(!weatherOption.IsSettingsExpanded, "Clicking weather settings button again must collapse it.");
+
+                    // The theme editor restyles individual design tokens and saves them into widgets\pack.json.
+                    var packBox = RequiredName<ComboBox>(settings, "ThemePackBox");
+                    var themeItem = ((IEnumerable<object>)packBox.ItemsSource).First(i =>
+                        string.Equals(i.GetType().GetProperty("Id")?.GetValue(i) as string, editorThemeId, StringComparison.OrdinalIgnoreCase));
+                    packBox.SelectedItem = themeItem;
+                    RequiredName<Button>(settings, "ThemePackEditButton").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                    Check(RequiredName<FrameworkElement>(settings, "ThemeEditorPanel").Visibility == Visibility.Visible,
+                        "Edit theme must open the theme editor panel.");
+                    var editorRows = RequiredName<StackPanel>(settings, "ThemeEditorRows");
+                    Check(Descendants<TextBox>(editorRows).Any(box => box.Tag as string == "DockMaterial"),
+                        "The editor must list palette tokens such as DockMaterial.");
+                    Check(Descendants<TextBox>(editorRows).Any(box => box.Tag as string == "DockRadius"),
+                        "The editor must list metric tokens such as DockRadius.");
+                    var packJsonPath = Path.Combine(ThemePacks.Root, editorThemeId, "widgets", "pack.json");
+                    var dockField = Descendants<TextBox>(editorRows).First(box => box.Tag as string == "DockMaterial");
+                    dockField.Text = "#FF123456";
+                    dockField.RaiseEvent(new RoutedEventArgs(UIElement.LostFocusEvent));
+                    Check(File.Exists(packJsonPath), "Editing a token must create widgets\\pack.json.");
+                    Check(File.ReadAllText(packJsonPath).Contains("FF123456", StringComparison.OrdinalIgnoreCase),
+                        "Editing a gradient stop must save the color into widgets\\pack.json.");
+                    var radiusField = Descendants<TextBox>(editorRows).First(box => box.Tag as string == "DockRadius");
+                    radiusField.Text = "4";
+                    radiusField.RaiseEvent(new RoutedEventArgs(UIElement.LostFocusEvent));
+                    Check(File.ReadAllText(packJsonPath).Contains("\"DockRadius\"", StringComparison.Ordinal),
+                        "Editing a radius token must save it into widgets\\pack.json.");
+                    RequiredName<Button>(settings, "ThemeEditorBackButton").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                    Check(RequiredName<FrameworkElement>(settings, "ThemeEditorPanel").Visibility == Visibility.Collapsed,
+                        "Back must close the theme editor panel.");
                 }
                 finally
                 {
                     settings.Close();
+                    ThemePacks.Root = previousThemeRoot;
+                    ThemePacks.Select(null);
+                    ThemePacks.ApplyWidgets(theme);
                     if (File.Exists(settingsPath)) File.Delete(settingsPath);
                 }
             }
