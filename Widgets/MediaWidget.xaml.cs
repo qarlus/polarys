@@ -388,7 +388,8 @@ public partial class MediaWidget : DockWidget
             _positionUpdatedAt = timeline.LastUpdatedTime;
             if (!_draggingProgress) UpdateProgressUI();
         }
-        catch (Exception ex) when (ex is COMException or InvalidOperationException)
+        // Dead sessions surface as NullReferenceException/ObjectDisposedException through the WinRT projection.
+        catch (Exception ex) when (ex is COMException or InvalidOperationException or NullReferenceException or ObjectDisposedException)
         {
             AppLog.Warning($"Media timeline refresh failed: {ex.Message}");
         }
@@ -473,7 +474,7 @@ public partial class MediaWidget : DockWidget
             HasData = true;
             await LoadArtAsync(properties, version, activationVersion);
         }
-        catch (Exception ex) when (ex is COMException or InvalidOperationException)
+        catch (Exception ex) when (ex is COMException or InvalidOperationException or NullReferenceException or ObjectDisposedException)
         {
             // Sessions vanish while their owning app exits; the next CurrentSessionChanged rebinds.
             AppLog.Warning($"Media session refresh failed: {ex.Message}");
