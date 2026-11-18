@@ -317,7 +317,7 @@
   "WidgetWeatherDescription": "Current temperature, condition icon, and multi-day forecast.",
   "Country": "Country",
   "WeatherCity": "Weather city",
-  "WeatherCityHint": "Leave empty to use Windows location services.",
+  "WeatherCityHint": "Type a city to use a fixed location. Leave empty to use Windows location services.",
   "WidgetDesktops": "Virtual desktops",
   "WidgetDesktopsDescription": "Switch between virtual desktops and create new ones.",
   "CurrentDesktopOnly": "Only windows on this desktop",
