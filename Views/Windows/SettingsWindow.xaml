@@ -398,21 +398,13 @@
                                         <Button x:Name="CollapseWeatherOptionsButton" Visibility="Collapsed" Click="CollapseWeatherOptions_Click" />
                                         <TextBlock Text="{local:Loc WeatherSettingsHeading}" FontWeight="SemiBold" FontSize="13" Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,8" />
                                         <StackPanel Margin="0,0,0,6">
-                                            <TextBlock Text="{local:Loc Country}" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,4" />
-                                            <ComboBox x:Name="WeatherCountryBox" IsEditable="True"
-                                                      AutomationProperties.Name="{local:Loc Country}"
-                                                      SelectionChanged="WeatherCountryBox_SelectionChanged"
-                                                      KeyUp="WeatherCountryBox_KeyUp" />
-                                        </StackPanel>
-                                        <StackPanel x:Name="WeatherCityContainer" Visibility="Collapsed" Margin="0,2,0,6">
                                             <TextBlock Text="{local:Loc WeatherCity}" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,4" />
-                                            <ComboBox x:Name="WeatherCityCombo" IsEditable="True"
-                                                      AutomationProperties.Name="{local:Loc WeatherCity}"
-                                                      SelectionChanged="WeatherCityCombo_SelectionChanged"
-                                                      KeyUp="WeatherCityCombo_KeyUp" />
+                                            <TextBox x:Name="WeatherCityBox"
+                                                     AutomationProperties.Name="{local:Loc WeatherCity}"
+                                                     TextChanged="WeatherCityBox_TextChanged"
+                                                     LostFocus="WeatherCityBox_LostFocus" />
+                                            <TextBlock x:Name="WeatherCityHintBlock" Text="{local:Loc WeatherCityHint}" FontSize="11" Foreground="{DynamicResource TextSecondary}" Margin="0,2,0,0" TextWrapping="Wrap" />
                                         </StackPanel>
-                                        <TextBox x:Name="WeatherCityBox" Visibility="Collapsed" />
-                                        <TextBlock x:Name="WeatherCityHintBlock" Text="{local:Loc WeatherCityHint}" FontSize="11" Foreground="{DynamicResource TextSecondary}" Margin="0,2,0,0" TextWrapping="Wrap" />
                                     </StackPanel>
                                 </Border>
                                 <Border x:Name="FocusOptions" Visibility="Collapsed" Background="Transparent" BorderThickness="0">

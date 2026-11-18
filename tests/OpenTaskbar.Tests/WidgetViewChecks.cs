@@ -355,16 +355,11 @@ internal static class WidgetViewChecks
                     weatherExpandBtn.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                     Check(weatherOption.IsSettingsExpanded, "Weather card must expand when settings button is clicked.");
                     Check(weatherOption.SettingsView != null, "Weather card must host its settings view inside the card.");
-                    var countryBox = RequiredName<ComboBox>(settings, "WeatherCountryBox");
-                    var cityContainer = RequiredName<FrameworkElement>(settings, "WeatherCityContainer");
-                    var cityCombo = RequiredName<ComboBox>(settings, "WeatherCityCombo");
-                    Check(countryBox.Visibility == Visibility.Visible, "Weather country box must be visible.");
-                    countryBox.SelectedItem = "Turkey";
-                    Layout(settings);
-                    Check(cityContainer.Visibility == Visibility.Visible, "Selecting a country must make the city dropdown container visible.");
-                    Check(cityCombo.Items.Count > 0, "Selecting Turkey must populate Turkish cities.");
-                    cityCombo.SelectedItem = "İzmir";
-                    Check(preferences.Current.WeatherCity == "İzmir", "Selecting a city in the dropdown must auto-save WeatherCity.");
+                    var cityBox = RequiredName<TextBox>(settings, "WeatherCityBox");
+                    Check(cityBox.Visibility == Visibility.Visible, "Weather city text box must be visible.");
+                    cityBox.Text = "İzmir";
+                    cityBox.RaiseEvent(new RoutedEventArgs(UIElement.LostFocusEvent));
+                    Check(preferences.Current.WeatherCity == "İzmir", "Typing a city must auto-save WeatherCity.");
                     weatherExpandBtn.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                     Check(!weatherOption.IsSettingsExpanded, "Clicking weather settings button again must collapse it.");
                 }

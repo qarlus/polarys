@@ -53,8 +53,6 @@ public partial class SettingsWindow : Window
         }
         AttachWidgetSettingsPanels();
         WidgetOptionsList.ItemsSource = _widgetOptions;
-        WeatherCountryBox.ItemsSource = CountryCityService.GetInitialCountries().Select(c => c.Name).ToList();
-        _ = InitializeWeatherLocationsAsync(_applied.WeatherCity);
         _preferences.Changed += Preferences_Changed;
         _widgetPreviewTimer.Tick += WidgetPreviewTimer_Tick;
         _autoSaveTimer.Tick += (_, _) =>
@@ -77,7 +75,6 @@ public partial class SettingsWindow : Window
             WidgetOptionsList.ItemsSource = null;
             _widgetOptions.Clear();
             _widgetDensityBoxes.Clear();
-            WeatherCountryBox.ItemsSource = null;
             ThemeManager.SetSurfaceOpacity(_preferences.Current.SurfaceOpacity);
             (Application.Current.MainWindow as MainWindow)?.SetSizePreview(null, null);
             _widgetOptions.Clear();
@@ -726,7 +723,6 @@ public partial class SettingsWindow : Window
         StartLast.IsChecked = settings.StartPlacement == StartButtonPlacement.End;
         StartHidden.IsChecked = settings.StartPlacement == StartButtonPlacement.Hidden;
         WheelVolumeToggle.IsChecked = settings.WheelVolume;
-        _ = InitializeWeatherLocationsAsync(settings.WeatherCity);
     }
 
     private void AttachWidgetSettingsPanels()
@@ -816,89 +812,6 @@ public partial class SettingsWindow : Window
             }
         }
         return result;
-    }
-
-    private async Task InitializeWeatherLocationsAsync(string savedCity)
-    {
-        try
-        {
-            var countries = await CountryCityService.GetCountriesAsync();
-            WeatherCountryBox.ItemsSource = countries.Select(c => c.Name).ToList();
-
-            if (!string.IsNullOrWhiteSpace(savedCity))
-            {
-                var trCities = await CountryCityService.GetCitiesAsync("Turkey");
-                string matchedCountry = trCities.Contains(savedCity, StringComparer.OrdinalIgnoreCase) ? "Turkey" : "Turkey";
-                WeatherCountryBox.SelectedItem = matchedCountry;
-                WeatherCityContainer.Visibility = Visibility.Visible;
-                WeatherCityCombo.ItemsSource = trCities;
-                WeatherCityCombo.SelectedItem = savedCity;
-                WeatherCityBox.Text = savedCity;
-            }
-        }
-        catch (Exception ex)
-        {
-            AppLog.Warning($"Weather location initialization error: {ex.Message}");
-        }
-    }
-
-    private async void WeatherCountryBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (_initializing) return;
-        var country = WeatherCountryBox.SelectedItem as string ?? WeatherCountryBox.Text.Trim();
-        await OnCountrySelectedAsync(country);
-    }
-
-    private async void WeatherCountryBox_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
-    {
-        if (e.Key is System.Windows.Input.Key.Enter or System.Windows.Input.Key.Tab)
-        {
-            var country = WeatherCountryBox.Text.Trim();
-            await OnCountrySelectedAsync(country);
-        }
-    }
-
-    private async Task OnCountrySelectedAsync(string country)
-    {
-        if (string.IsNullOrWhiteSpace(country))
-        {
-            WeatherCityContainer.Visibility = Visibility.Collapsed;
-            WeatherCityBox.Text = string.Empty;
-            SaveSettings();
-            return;
-        }
-
-        WeatherCityContainer.Visibility = Visibility.Visible;
-        var cities = await CountryCityService.GetCitiesAsync(country);
-        WeatherCityCombo.ItemsSource = cities;
-        if (cities.Count > 0)
-        {
-            WeatherCityCombo.IsDropDownOpen = true;
-        }
-    }
-
-    private void WeatherCityCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (_initializing) return;
-        var city = WeatherCityCombo.SelectedItem as string;
-        if (!string.IsNullOrWhiteSpace(city))
-        {
-            WeatherCityBox.Text = city;
-            PreferenceEdited(sender, e);
-        }
-    }
-
-    private void WeatherCityCombo_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
-    {
-        if (e.Key is System.Windows.Input.Key.Enter or System.Windows.Input.Key.Tab)
-        {
-            var city = WeatherCityCombo.Text.Trim();
-            if (!string.IsNullOrWhiteSpace(city))
-            {
-                WeatherCityBox.Text = city;
-                PreferenceEdited(sender, e);
-            }
-        }
     }
 
     private void WeatherCityBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) => PreferenceEdited(sender, e);
